@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://155xx7s6y6ta"]
+
+[ext_resource type="PackedScene" uid="uid://coar0w52ewb50" path="res://scenes/world.tscn" id="1_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://u0tyh6mfss1j" path="res://assets/2d_top_down_character_controller/Player.tscn" id="2_sugp2"]
+
+[node name="Main" type="Node2D" unique_id=1806410902]
+
+[node name="World" parent="." unique_id=1592686049 instance=ExtResource("1_0wfyh")]
+
+[node name="Player" parent="." unique_id=2131672290 instance=ExtResource("2_sugp2")]
+script = null

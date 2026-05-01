@@ -1,0 +1,110 @@
+[gd_scene format=3 uid="uid://u0tyh6mfss1j"]
+
+[ext_resource type="Script" uid="uid://b55jx8l3dgg70" path="res://assets/2d_top_down_character_controller/2d_top_down_character_controller.gd" id="1_p812d"]
+[ext_resource type="Texture2D" uid="uid://c763yfown7hgi" path="res://assets/2d_top_down_character_controller/Player.png" id="2_jwh2y"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4xe80"]
+size = Vector2(12, 16)
+
+[sub_resource type="Animation" id="Animation_kdlya"]
+resource_name = "Fall"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [5]
+}
+
+[sub_resource type="Animation" id="Animation_ibb5u"]
+resource_name = "Idle"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="Animation" id="Animation_62qiu"]
+resource_name = "Jump"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [6]
+}
+
+[sub_resource type="Animation" id="Animation_tc5rf"]
+resource_name = "Walk"
+length = 0.6
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../Sprite2D:frame")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [1, 2, 3, 4, 5, 0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gc6fn"]
+_data = {
+&"Fall": SubResource("Animation_kdlya"),
+&"Idle": SubResource("Animation_ibb5u"),
+&"Jump": SubResource("Animation_62qiu"),
+&"Walk": SubResource("Animation_tc5rf")
+}
+
+[node name="Player" type="CharacterBody2D" unique_id=163934477]
+script = ExtResource("1_p812d")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1670616111]
+position = Vector2(0, 2)
+shape = SubResource("RectangleShape2D_4xe80")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=664050455]
+texture_filter = 1
+texture = ExtResource("2_jwh2y")
+hframes = 7
+frame = 5
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=519357304]
+zoom = Vector2(2, 2)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=799112917]
+root_node = NodePath("../Camera2D")
+libraries/ = SubResource("AnimationLibrary_gc6fn")
+autoplay = &"Idle"
+
+[node name="DashTimer" type="Timer" parent="." unique_id=1569747642]
+wait_time = 0.5
+
+[node name="DashCooldownTimer" type="Timer" parent="." unique_id=75425734]
+wait_time = 5.0
+
+[connection signal="timeout" from="DashTimer" to="." method="_on_dash_timer_timeout"]
+[connection signal="timeout" from="DashCooldownTimer" to="." method="_on_dash_cooldown_timer_timeout"]
