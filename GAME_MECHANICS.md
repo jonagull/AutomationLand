@@ -4,6 +4,8 @@
 
 A top-down 2D farmer automation game built in Godot 4. Tasks start manual, then the player unlocks automation bots they can program with a custom scripting language. The progression loop is: do it by hand → understand the work → automate it → optimize the automation.
 
+**Aesthetic: solarpunk.** Hopeful, green, community-oriented. Technology works *with* nature — bots are helpers, not replacements. The farm should feel alive and thriving, not industrial.
+
 ---
 
 ## Player
