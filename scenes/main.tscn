@@ -2,10 +2,27 @@
 
 [ext_resource type="PackedScene" uid="uid://coar0w52ewb50" path="res://scenes/world.tscn" id="1_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://u0tyh6mfss1j" path="res://assets/2d_top_down_character_controller/Player.tscn" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://cljt08i1y75cp" path="res://scripts/farm/field.gd" id="3_field"]
+[ext_resource type="PackedScene" path="res://scenes/farm/farm_bot.tscn" id="4_farmbot"]
+[ext_resource type="PackedScene" path="res://scenes/network/network_terminal.tscn" id="5_netterminal"]
 
 [node name="Main" type="Node2D" unique_id=1806410902]
 
 [node name="World" parent="." unique_id=1592686049 instance=ExtResource("1_0wfyh")]
+position = Vector2(2, -7)
+
+[node name="Field" type="Node2D" parent="." unique_id=1111111111]
+position = Vector2(109, -593)
+script = ExtResource("3_field")
+
+[node name="FarmBot" parent="." unique_id=-2072745074 instance=ExtResource("4_farmbot")]
+position = Vector2(65, -313)
+move_duration = null
+work_duration = null
+turn_duration = null
+
+[node name="NetworkTerminal" parent="." instance=ExtResource("5_netterminal")]
+position = Vector2(155, -302)
 
 [node name="Player" parent="." unique_id=2131672290 instance=ExtResource("2_sugp2")]
-script = null
+position = Vector2(107, -302)

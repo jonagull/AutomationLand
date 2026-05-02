@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/network/network_terminal.gd" id="1_nt"]
+[ext_resource type="Script" path="res://scripts/ui/network_terminal_ui.gd" id="2_ui"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1"]
+radius = 28.0
+
+[node name="NetworkTerminal" type="Node2D"]
+script = ExtResource("1_nt")
+
+[node name="InteractionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
+shape = SubResource("CircleShape2D_1")
+
+[node name="NetworkTerminalUI" type="CanvasLayer" parent="."]
+script = ExtResource("2_ui")
+
+[connection signal="body_entered" from="InteractionArea" to="." method="_on_interaction_area_body_entered"]
+[connection signal="body_exited" from="InteractionArea" to="." method="_on_interaction_area_body_exited"]
