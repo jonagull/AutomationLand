@@ -504,8 +504,61 @@ func _cli_submit() -> void:
 	_cli_history.append(text)
 	_cli_history_idx = -1
 	_cli_output.append_text("[color=#3d7a3d]> %s[/color]\n" % text)
+
+	var parts := text.split(" ", false)
+	var cmd := parts[0].to_lower() if parts.size() > 0 else ""
+
+	match cmd:
+		"list":
+			var bots := NetworkManager.get_bots()
+			if bots.is_empty():
+				_cli_output.append_text("[color=#888]No bots on network.[/color]\n")
+			else:
+				_cli_output.append_text("[color=#55ff55]Bots on network:[/color]\n")
+				for b in bots:
+					var bot := b as FarmBot
+					if not bot: continue
+					var runner := bot.get_node_or_null("BotRunner") as BotRunner
+					var running := runner != null and runner._running
+					var status := "[color=#44ff44]● running[/color]" if running else "[color=#888]○ idle[/color]"
+					var field_name := bot.field.field_name if bot.field else "none"
+					_cli_output.append_text("  [color=#ccffcc]%s[/color]  %s  field: %s\n" % [
+						bot.name, status, field_name])
+			return
+
+		"logs":
+			var target_name := parts[1] if parts.size() > 1 else ""
+			var found: FarmBot = null
+			for b in NetworkManager.get_bots():
+				var bot := b as FarmBot
+				if bot and bot.name.to_lower() == target_name.to_lower():
+					found = bot
+					break
+			if not found:
+				if target_name.is_empty():
+					_cli_output.append_text("[color=red]Usage: logs <bot-name>[/color]\n")
+				else:
+					_cli_output.append_text("[color=red]Bot not found: %s[/color]\n" % target_name)
+				return
+			if found.log_history.is_empty():
+				_cli_output.append_text("[color=#888]No log output for %s.[/color]\n" % found.name)
+			else:
+				_cli_output.append_text("[color=#55ff55]Log: %s[/color]\n" % found.name)
+				for line in found.log_history:
+					_cli_output.append_text(line + "\n")
+			return
+
+		"help":
+			_cli_output.append_text(
+				"[color=#55ff55]Commands:[/color]\n" +
+				"  [color=#aaddff]list[/color]          — list all bots on the network\n" +
+				"  [color=#aaddff]logs <bot>[/color]    — show log output for a bot\n" +
+				"  [color=#aaddff]help[/color]          — show this help\n" +
+				"  [color=#aaddff]<script>[/color]      — run a script line on the selected bot\n")
+			return
+
 	if not _selected_bot:
-		_cli_output.append_text("[color=red]No bot selected[/color]\n")
+		_cli_output.append_text("[color=red]No bot selected. Use 'list' to see available bots.[/color]\n")
 		return
 	var runner := _selected_bot.get_node_or_null("BotRunner") as BotRunner
 	if runner:

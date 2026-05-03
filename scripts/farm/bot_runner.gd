@@ -28,6 +28,7 @@ func start(script_text: String) -> void:
 
 func stop() -> void:
 	_running = false
+	_bot.cancel_nav()
 	stopped.emit()
 
 func execute_line(line: String) -> void:
@@ -56,6 +57,7 @@ func _run(program: Array) -> void:
 	if _running:
 		_running = false
 		stopped.emit()
+		_bot.return_to_dock()
 
 func _collect_funcs(block: Array) -> void:
 	for item in block:

@@ -5,11 +5,18 @@
 [ext_resource type="Script" uid="uid://cljt08i1y75cp" path="res://scripts/farm/field.gd" id="3_field"]
 [ext_resource type="PackedScene" path="res://scenes/farm/farm_bot.tscn" id="4_farmbot"]
 [ext_resource type="PackedScene" path="res://scenes/network/network_terminal.tscn" id="5_netterminal"]
+[ext_resource type="Script" uid="uid://dmqx6exwhnrmv" path="res://scripts/world/nav_region.gd" id="6_navregion"]
+[ext_resource type="PackedScene" path="res://scenes/farm/bot_dock.tscn" id="7_botdock"]
+[ext_resource type="Script" uid="uid://b57ef11b0ymrs" path="res://scripts/world/main.gd" id="8_maingd"]
 
 [node name="Main" type="Node2D" unique_id=1806410902]
+script = ExtResource("8_maingd")
+
+[node name="NavRegion" type="NavigationRegion2D" parent="." unique_id=242687741]
+script = ExtResource("6_navregion")
 
 [node name="World" parent="." unique_id=1592686049 instance=ExtResource("1_0wfyh")]
-position = Vector2(2, -7)
+position = Vector2(21, 30)
 
 [node name="Field" type="Node2D" parent="." unique_id=1111111111]
 position = Vector2(109, -593)
@@ -17,12 +24,12 @@ script = ExtResource("3_field")
 
 [node name="FarmBot" parent="." unique_id=-2072745074 instance=ExtResource("4_farmbot")]
 position = Vector2(65, -313)
-move_duration = null
-work_duration = null
-turn_duration = null
 
-[node name="NetworkTerminal" parent="." instance=ExtResource("5_netterminal")]
+[node name="NetworkTerminal" parent="." unique_id=1088329234 instance=ExtResource("5_netterminal")]
 position = Vector2(155, -302)
+
+[node name="BotDock" parent="." unique_id=573592013 instance=ExtResource("7_botdock")]
+position = Vector2(65, -313)
 
 [node name="Player" parent="." unique_id=2131672290 instance=ExtResource("2_sugp2")]
 position = Vector2(107, -302)

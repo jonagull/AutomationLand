@@ -17,6 +17,12 @@ var _is_working := false
 var current_script: String = ""
 var log_history: Array[String] = []
 
+var dock_position: Vector2 = Vector2.ZERO
+var _at_field: bool = false
+var _nav_active: bool = false
+var _nav_agent: NavigationAgent2D
+const _NAV_SPEED := 100.0
+
 signal command_done
 signal log_output(text: String)
 signal terminal_open_requested
@@ -24,26 +30,39 @@ signal terminal_open_requested
 func _ready() -> void:
 	_current_cell = home_cell
 	rotation = 0.0
-	if field:
-		global_position = field.cell_center_world(_current_cell)
+	dock_position = global_position
 	if Engine.is_editor_hint():
 		return
+	_nav_agent = $NavigationAgent2D
+	_nav_agent.path_desired_distance = 4.0
+	_nav_agent.target_desired_distance = 8.0
 	NetworkManager.register_bot(self)
 	var runner := $BotRunner as BotRunner
-	var terminal := $BotTerminal as BotTerminal
-	if terminal and runner:
-		terminal.setup(self, runner)
-	terminal_open_requested.connect($BotTerminal.toggle)
+	var panel := $BotPanel as BotPanel
+	if panel and runner:
+		panel.setup(self, runner)
+	terminal_open_requested.connect(panel.toggle)
 
 func _exit_tree() -> void:
 	if not Engine.is_editor_hint():
 		NetworkManager.unregister_bot(self)
 
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint() or not _nav_active: return
+	if _nav_agent.is_navigation_finished(): return
+	var next := _nav_agent.get_next_path_position()
+	var dir := global_position.direction_to(next)
+	var dist := global_position.distance_to(next)
+	if dist > 0.5:
+		rotation = dir.angle() + PI * 0.5
+		global_position += dir * min(_NAV_SPEED * delta, dist)
+	queue_redraw()
+
 func load_script(code: String) -> void:
 	current_script = code
-	var terminal := $BotTerminal as BotTerminal
-	if terminal:
-		terminal.load_script(code)
+	var panel := $BotPanel as BotPanel
+	if panel:
+		panel.load_script(code)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
@@ -98,6 +117,16 @@ func bot_use_tool() -> void:
 	command_done.emit()
 
 func bot_home() -> void:
+	if not _at_field:
+		if field:
+			var target := field.cell_center_world(home_cell)
+			await _nav_travel(target)
+			_current_cell = home_cell
+			global_position = field.cell_center_world(home_cell)
+			_at_field = true
+		await get_tree().process_frame
+		command_done.emit()
+		return
 	await bot_move_to(home_cell.x, home_cell.y)
 
 func bot_face(direction: String) -> void:
@@ -171,6 +200,13 @@ func bot_set_field(name: String) -> void:
 	else:
 		var known := ", ".join(FarmRegistry.list())
 		_log("Field '%s' not found. Known fields: %s" % [name, known if known else "(none)"])
+	if field and not _at_field:
+		_log("Navigating to field...")
+		var target := field.cell_center_world(home_cell)
+		await _nav_travel(target)
+		_current_cell = home_cell
+		global_position = field.cell_center_world(home_cell)
+		_at_field = true
 	await get_tree().process_frame
 	command_done.emit()
 
@@ -184,6 +220,28 @@ func bot_print(msg) -> void:
 	_log(str(msg))
 	await get_tree().process_frame
 	command_done.emit()
+
+func _nav_travel(target: Vector2) -> void:
+	if global_position.distance_to(target) < 4.0:
+		global_position = target
+		return
+	_nav_agent.target_position = target
+	_nav_active = true
+	await get_tree().physics_frame
+	while _nav_active and not _nav_agent.is_navigation_finished():
+		await get_tree().process_frame
+	_nav_active = false
+	if global_position.distance_to(target) < 12.0:
+		global_position = target
+
+func cancel_nav() -> void:
+	_nav_active = false
+
+func return_to_dock() -> void:
+	_at_field = false
+	await _nav_travel(dock_position)
+	rotation = 0.0
+	queue_redraw()
 
 func _log(text: String) -> void:
 	log_output.emit(text)
